@@ -12,16 +12,18 @@
     :root {
       --bg: #f5f5f7;
       --card: #ffffff;
-      --border: #d1d5db;
+      --border: #e5e7eb;
       --border-strong: #9ca3af;
-      --accent: #06b6d4;         /* Türkis */
-      --accent-soft: rgba(6, 182, 212, 0.08);
-      --accent-dark: #0f172a;    /* Dunkelblau */
+
+      /* Gold-Akzent statt Türkis */
+      --accent: #f59e0b;         /* Gold */
+      --accent-soft: rgba(245, 158, 11, 0.10);
+      --accent-dark: #1f2933;    /* Dunkles Anthrazit/Blau */
       --text: #111827;
       --muted: #6b7280;
       --danger: #b91c1c;
       --gold: #f59e0b;
-      --gold-soft: rgba(245, 158, 11, 0.08);
+      --gold-soft: rgba(245, 158, 11, 0.10);
     }
 
     * { box-sizing: border-box; }
@@ -30,7 +32,7 @@
       margin: 0;
       padding: 0;
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: var(--bg);
+      background: radial-gradient(circle at top, #fef3c7 0, #f5f5f7 40%, #e5e7eb 100%);
       color: var(--text);
     }
 
@@ -48,7 +50,7 @@
       border-radius: 18px;
       border: 1px solid var(--border);
       background: var(--card);
-      box-shadow: 0 10px 30px rgba(15, 23, 42, 0.05);
+      box-shadow: 0 18px 40px rgba(15, 23, 42, 0.06);
       padding: 18px 20px;
     }
 
@@ -66,7 +68,7 @@
       position: absolute;
       inset: -40%;
       background: radial-gradient(circle at top,
-        rgba(15, 118, 190, 0.12),
+        rgba(245, 158, 11, 0.22),
         transparent 55%);
       pointer-events: none;
     }
@@ -88,7 +90,7 @@
     }
 
     .hero-title span {
-      background: linear-gradient(to right, #0f172a, #0284c7);
+      background: linear-gradient(to right, #1f2933, #f59e0b);
       -webkit-background-clip: text;
       color: transparent;
     }
@@ -108,9 +110,9 @@
       font-size: 11px;
       letter-spacing: 0.07em;
       text-transform: uppercase;
-      border: 1px solid rgba(6, 182, 212, 0.6);
+      border: 1px solid rgba(245, 158, 11, 0.7);
       background: var(--accent-soft);
-      color: var(--accent);
+      color: var(--accent-dark);
     }
 
     .mic-indicator {
@@ -118,7 +120,7 @@
       border-radius: 999px;
       padding: 4px 10px;
       border: 1px solid var(--border);
-      background: #f9fafb;
+      background: #fffbeb;
       color: var(--muted);
       display: inline-flex;
       align-items: center;
@@ -156,7 +158,7 @@
 
     input:focus, select:focus, textarea:focus {
       border-color: var(--accent);
-      box-shadow: 0 0 0 1px rgba(6, 182, 212, 0.3);
+      box-shadow: 0 0 0 1px rgba(245, 158, 11, 0.35);
       background: #ffffff;
     }
 
@@ -180,14 +182,15 @@
     }
 
     .button-primary {
-      background: var(--accent);
-      color: #ecfeff;
-      box-shadow: 0 8px 24px rgba(6, 182, 212, 0.35);
+      background: linear-gradient(to right, #fbbf24, #f59e0b);
+      color: #111827;
+      box-shadow: 0 10px 26px rgba(245, 158, 11, 0.45);
     }
 
     .button-primary:hover {
       filter: brightness(1.03);
       transform: translateY(-1px);
+      box-shadow: 0 14px 32px rgba(245, 158, 11, 0.6);
     }
 
     .button-ghost {
@@ -207,15 +210,15 @@
     }
 
     .button-gold {
-      background: #fff7ed;
+      background: #fffbeb;
       color: var(--gold);
       border: 1px solid var(--gold);
       box-shadow: 0 0 0 1px var(--gold-soft);
     }
 
     .button-gold:hover {
-      background: #fffbeb;
-      box-shadow: 0 0 0 1px rgba(245, 158, 11, 0.4);
+      background: #fef3c7;
+      box-shadow: 0 0 0 1px rgba(245, 158, 11, 0.5);
     }
 
     .section-title { font-size: 14px; font-weight: 600; margin-bottom: 8px; }
@@ -285,7 +288,7 @@
 
     #patient-list li.active,
     #session-list li.active {
-      background: rgba(6, 182, 212, 0.12);
+      background: rgba(245, 158, 11, 0.12);
       border-left: 3px solid var(--accent);
     }
 
@@ -305,9 +308,9 @@
     }
 
     .chip.active {
-      background: #e0f2fe;
+      background: #fef3c7;
       border-color: var(--accent);
-      color: #0f172a;
+      color: #92400e;
     }
 
     /* Slider */
@@ -354,9 +357,9 @@
 
     .tab-label.active {
       background: var(--accent);
-      color: #ecfeff;
+      color: #fffaf0;
       border-color: var(--accent);
-      box-shadow: 0 6px 18px rgba(6, 182, 212, 0.4);
+      box-shadow: 0 8px 22px rgba(245, 158, 11, 0.6);
     }
 
     /* Tab hat Inhalt (gefüllt) */
@@ -388,9 +391,9 @@
       border-radius: 999px;
       padding: 4px 10px;
       font-size: 11px;
-      border: 1px solid rgba(6, 182, 212, 0.6);
-      background: #e0f2fe;
-      color: #0369a1;
+      border: 1px solid rgba(245, 158, 11, 0.7);
+      background: #fffbeb;
+      color: #92400e;
       cursor: pointer;
       display: inline-flex;
       align-items: center;
@@ -414,7 +417,7 @@
       line-height: 1.5;
     }
 
-    /* ICD-10 Vorschläge */
+    /* „ICD“-Hilfselemente – jetzt nur noch einfache Info, keine ICD-Logik nötig */
     #patient-icd-suggestions {
       margin-top: 2px;
       font-size: 12px;
@@ -464,7 +467,7 @@
       width: 100%;
       border-radius: 10px;
       border: 1px solid var(--border);
-      background: #f9fafb;
+      background: #fffbeb;
       margin-top: 10px;
     }
 
@@ -475,7 +478,7 @@
       padding: 12px 10px;
       border-radius: 10px;
       border: 1px dashed var(--border-strong);
-      background: #f9fafb;
+      background: #fefce8;
       margin-top: 4px;
     }
   </style>
@@ -518,11 +521,11 @@
                 <input id="patient-year-input" type="number" placeholder="1938" />
               </div>
               <div style="flex:1;">
-                <label for="patient-icd-input">Diagnose / ICD-10 (optional)</label>
-                <input id="patient-icd-input" type="text" placeholder="z. B. I50.0 Herzinsuffizienz" />
+                <label for="patient-icd-input">Erkrankungen / Diagnosen (optional)</label>
+                <input id="patient-icd-input" type="text" placeholder="z. B. Herzinsuffizienz, Diabetes, COPD" />
                 <div id="patient-icd-suggestions"></div>
                 <div id="patient-icd-selected" class="meta" style="margin-top:4px;">
-                  Noch keine Diagnose ausgewählt.
+                  Optionaler Hinweis: relevante Erkrankungen oder Diagnosen kurz ergänzen.
                 </div>
               </div>
             </div>
@@ -542,7 +545,7 @@
             <input
               id="patient-search-input"
               type="text"
-              placeholder="Name oder Diagnose suchen…"
+              placeholder="Name oder Erkrankung suchen…"
             />
           </div>
 
@@ -800,10 +803,8 @@
     </div>
   </div>
 
-  <!-- WICHTIG: ICD-10 Codes VOR app.js laden -->
-  <script src="sis-codes.js"></script>
+  <!-- Nur noch dein App-Script, keine ICD10-/SIS-Codes extra nötig -->
   <script src="app.js"></script>
-
 
   <!-- Tabs, Tab-Füllstatus & Klientensuche (nur Layout/UX, app.js bleibt unverändert) -->
   <script>
