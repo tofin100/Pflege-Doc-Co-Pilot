@@ -3,1322 +3,404 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>CIS Pflege – Sprachgesteuerte Dokumentation (SIS-orientiert)</title>
-
+  <title>Skyjo Scoreboard (3 Spieler)</title>
   <style>
     :root{
-      --bg:#f4f7f9;
-      --card:#ffffff;
-      --border:#d1d5db;
-      --border-strong:#9ca3af;
-      --text:#111827;
-      --muted:#6b7280;
-      --accent:#0ea5a4;
-      --accent-2:#2563eb;
-      --danger:#ef4444;
-      --ok:#16a34a;
-      --warn:#f59e0b;
-      --shadow:0 10px 30px rgba(17,24,39,.08);
-      --radius:14px;
+      --bg:#070b14;
+      --panel:rgba(255,255,255,.06);
+      --panel2:rgba(255,255,255,.035);
+      --border:rgba(255,255,255,.12);
+      --text:#eef3ff;
+      --muted:#9fb0d0;
+      --accent:#7dd3fc;
+      --accent2:#a78bfa;
+      --good:#34d399;
+      --bad:#fb7185;
+      --shadow:0 18px 50px rgba(0,0,0,.35);
     }
     *{box-sizing:border-box}
     body{
       margin:0;
-      font-family: system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
+      background:
+        radial-gradient(900px 520px at 15% 0%, rgba(125,211,252,.14), transparent 55%),
+        radial-gradient(900px 520px at 85% 10%, rgba(167,139,250,.12), transparent 55%),
+        var(--bg);
       color:var(--text);
-      background:linear-gradient(180deg,#ffffff 0%, var(--bg) 32%, var(--bg) 100%);
     }
-
-    header{
-      position:sticky; top:0; z-index:20;
-      background:rgba(255,255,255,.92);
-      backdrop-filter:saturate(1.4) blur(10px);
-      border-bottom:1px solid var(--border);
-    }
-    .header-inner{
-      max-width:1100px;
-      margin:0 auto;
-      padding:14px 16px 10px;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:12px;
-    }
-    .brand{ display:flex; align-items:center; gap:12px; }
-    .logo{
-      width:40px; height:40px; border-radius:12px;
-      display:grid; place-items:center;
-      color:#fff;
-      background: radial-gradient(circle at 30% 30%, #2dd4bf 0%, #0ea5a4 55%, #0b7285 100%);
+    .wrap{max-width:980px;margin:34px auto;padding:16px}
+    .hero{
+      border:1px solid var(--border);
+      border-radius:22px;
+      background: linear-gradient(180deg, var(--panel), var(--panel2));
       box-shadow: var(--shadow);
-      font-weight:800;
-      letter-spacing:.5px;
-      user-select:none;
+      padding:18px;
+      margin-bottom:14px;
     }
-    .brand h1{ margin:0; font-size:16px; line-height:1.1; }
-    .brand p{ margin:2px 0 0; color:var(--muted); font-size:12px; }
-
-    .top-actions{
-      display:flex;
-      align-items:center;
-      gap:8px;
-      flex-wrap:wrap;
-      justify-content:flex-end;
-    }
-
-    .btn{
-      border:1px solid var(--border);
-      background:#fff;
-      border-radius:12px;
-      padding:10px 12px;
-      font-size:13px;
-      cursor:pointer;
-      transition:.15s ease;
-      display:inline-flex;
-      align-items:center;
-      gap:8px;
-      user-select:none;
-    }
-    .btn:hover{ transform: translateY(-1px); box-shadow: 0 8px 18px rgba(17,24,39,.08); }
-    .btn:active{ transform: translateY(0); box-shadow:none; }
-    .btn.primary{
-      border-color: transparent;
-      background: linear-gradient(135deg, #0ea5a4, #2563eb);
-      color:#fff;
-    }
-    .btn.danger{
-      border-color: transparent;
-      background: linear-gradient(135deg, #ef4444, #b91c1c);
-      color:#fff;
-    }
-    .btn.ghost{ background:transparent; }
-    .btn.small{ padding:8px 10px; border-radius:10px; font-size:12px; }
-
+    .top{display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;align-items:flex-start}
+    h1{margin:0;font-size:26px;letter-spacing:.2px}
+    .sub{margin:10px 0 0 0;color:var(--muted);line-height:1.5;max-width:760px}
     .pill{
+      display:inline-flex;align-items:center;gap:8px;
+      padding:8px 12px;border-radius:999px;
       border:1px solid var(--border);
-      padding:8px 10px;
-      border-radius:999px;
-      font-size:12px;
+      background:rgba(0,0,0,.16);
       color:var(--muted);
-      background:#fff;
-      display:flex; align-items:center; gap:8px;
+      font-weight:900;
+      white-space:nowrap;
     }
-    .dot{
-      width:9px; height:9px; border-radius:50%;
-      background:#9ca3af;
-      box-shadow: 0 0 0 4px rgba(156,163,175,.12);
-    }
-    .dot.live{ background: var(--ok); box-shadow: 0 0 0 6px rgba(22,163,74,.14); }
-    .dot.warn{ background: var(--warn); box-shadow: 0 0 0 6px rgba(245,158,11,.14); }
-    .dot.err{ background: var(--danger); box-shadow: 0 0 0 6px rgba(239,68,68,.14); }
-
-    main{
-      max-width:1100px;
-      margin:0 auto;
-      padding:16px;
-      display:grid;
-      grid-template-columns: 360px 1fr;
-      gap:16px;
-    }
-    @media (max-width: 980px){
-      main{ grid-template-columns: 1fr; }
-      header{ position:relative; }
-    }
+    .pill .dot{width:10px;height:10px;border-radius:99px;background:var(--good);box-shadow:0 0 18px rgba(52,211,153,.35)}
+    .grid{display:grid;gap:14px}
+    @media(min-width:940px){ .grid{grid-template-columns:1.05fr .95fr} }
 
     .card{
-      background:var(--card);
       border:1px solid var(--border);
-      border-radius:var(--radius);
+      border-radius:18px;
+      background: linear-gradient(180deg, rgba(255,255,255,.055), rgba(255,255,255,.03));
       box-shadow: var(--shadow);
+      overflow:hidden;
     }
-
-    .card-head{
-      padding:14px 14px 10px;
+    .head{
+      padding:14px 16px;
       border-bottom:1px solid var(--border);
-      display:flex;
-      align-items:flex-start;
-      justify-content:space-between;
-      gap:12px;
+      display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;
     }
-    .card-head h2{ margin:0; font-size:14px; }
-    .card-head .sub{
-      margin-top:4px;
-      color:var(--muted);
-      font-size:12px;
-      line-height:1.35;
-    }
-    .card-body{ padding:14px; }
+    .head h2{margin:0;font-size:16px}
+    .meta{color:var(--muted);font-size:12px}
+    .body{padding:14px 16px}
 
-    .grid-2{
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:10px;
-    }
-    @media (max-width: 980px){
-      .grid-2{ grid-template-columns:1fr; }
-    }
-
-    label{ display:block; font-size:12px; color:var(--muted); margin-bottom:6px; }
-    input, select, textarea{
-      width:100%;
+    .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+    label{font-size:12px;color:var(--muted);font-weight:900}
+    input[type="text"], input[type="number"]{
+      background:rgba(255,255,255,.03);
       border:1px solid var(--border);
+      color:var(--text);
       border-radius:12px;
       padding:10px 12px;
       font-size:14px;
       outline:none;
-      background:#fff;
-      transition:border-color .12s ease, box-shadow .12s ease;
     }
-    textarea{ min-height:120px; resize:vertical; line-height:1.5; }
-    input:focus, select:focus, textarea:focus{
-      border-color: rgba(14,165,164,.9);
-      box-shadow: 0 0 0 4px rgba(14,165,164,.12);
-    }
-
-    .tabs{
-      display:flex;
-      gap:8px;
-      padding:10px;
-      border-bottom:1px solid var(--border);
-      overflow:auto;
-      background: rgba(14,165,164,.04);
-      border-top-left-radius: var(--radius);
-      border-top-right-radius: var(--radius);
-    }
-    .tab{
-      white-space:nowrap;
+    input[type="text"]{min-width:180px}
+    input[type="number"]{width:120px}
+    .btn{
       border:1px solid var(--border);
-      background:#fff;
-      padding:10px 12px;
-      border-radius:999px;
+      background:rgba(255,255,255,.06);
+      color:var(--text);
+      padding:10px 14px;
+      border-radius:12px;
+      font-weight:950;
       cursor:pointer;
+    }
+    .btn:hover{background:rgba(255,255,255,.10)}
+    .btn.danger{border-color:rgba(251,113,133,.35)}
+    .btn.danger:hover{background:rgba(251,113,133,.12)}
+    .btn.soft{border-color:rgba(125,211,252,.25)}
+    .btn.soft:hover{background:rgba(125,211,252,.10)}
+
+    table{width:100%;border-collapse:separate;border-spacing:0;margin-top:10px}
+    th, td{
+      border-bottom:1px solid var(--border);
+      padding:10px 10px;
+      text-align:left;
       font-size:13px;
-      transition:.12s ease;
-      display:flex;
-      align-items:center;
-      gap:8px;
-      user-select:none;
+      vertical-align:top;
     }
-    .tab:hover{ border-color: var(--border-strong); }
-    .tab.active{
-      border-color: transparent;
-      background: linear-gradient(135deg, rgba(14,165,164,.95), rgba(37,99,235,.95));
-      color:#fff;
+    th{color:var(--muted);font-weight:900}
+    tr:last-child td{border-bottom:none}
+    .totals{
+      display:grid;gap:10px;margin-top:10px;
+      grid-template-columns:1fr;
     }
-    .badge{
-      font-size:11px;
-      padding:2px 8px;
-      border-radius:999px;
-      border:1px solid rgba(255,255,255,.35);
-      background: rgba(255,255,255,.14);
-      color:inherit;
-    }
-
-    .field-list{ display:grid; gap:10px; }
-    .field{
+    @media(min-width:560px){ .totals{grid-template-columns:1fr 1fr 1fr} }
+    .totalBox{
       border:1px solid var(--border);
-      border-radius:12px;
-      padding:10px;
-      background:#fff;
-      transition:.12s ease;
-    }
-    .field.active{
-      border-color: rgba(14,165,164,.95);
-      box-shadow: 0 0 0 4px rgba(14,165,164,.12);
-      background: linear-gradient(180deg, #fff 0%, rgba(14,165,164,.04) 100%);
-    }
-    .field-top{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:10px;
-      margin-bottom:8px;
-    }
-    .field-title{ font-size:13px; font-weight:700; margin:0; }
-    .field-hint{ font-size:12px; color:var(--muted); margin:0; }
-    .mini-actions{ display:flex; gap:6px; align-items:center; }
-
-    .split{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
-    .kbd{
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-      font-size:11px;
-      color:var(--muted);
-      border:1px solid var(--border);
-      background:#fff;
-      padding:3px 7px;
-      border-radius:8px;
-      user-select:none;
-    }
-
-    .notice{
-      border:1px solid var(--border);
-      background: linear-gradient(180deg, #fff 0%, rgba(37,99,235,.04) 100%);
-      border-radius:12px;
+      border-radius:16px;
+      background:rgba(0,0,0,.16);
       padding:12px;
-      font-size:12px;
-      color:var(--muted);
-      line-height:1.45;
     }
+    .name{font-weight:1000}
+    .score{font-size:22px;font-weight:1100;margin-top:6px}
+    .small{font-size:12px;color:var(--muted);margin-top:6px;line-height:1.35}
+    .leader{color:var(--good)}
+    .trailer{color:var(--bad)}
 
-    .footer{
-      max-width:1100px;
-      margin:0 auto;
-      padding:0 16px 18px;
-      color:var(--muted);
-      font-size:12px;
-    }
-
-    @media print{
-      header{ position:static; }
-      .top-actions, .tabs, .mini-actions, .controls-print-hide { display:none !important; }
-      body{ background:#fff; }
-      main{ grid-template-columns: 1fr; }
-      .card{ box-shadow:none; }
-    }
+    .hint{margin-top:10px;color:var(--muted);font-size:12px;line-height:1.45}
+    .foot{margin:18px 0 6px 0;text-align:center;color:var(--muted);font-size:12px;opacity:.9}
+    .accent{color:var(--accent);font-weight:1000}
+    .accent2{color:var(--accent2);font-weight:1000}
   </style>
 </head>
-
 <body>
-<header>
-  <div class="header-inner">
-    <div class="brand">
-      <div class="logo">CIS</div>
-      <div>
-        <h1>CIS Pflege – Sprachgesteuerte Dokumentation</h1>
-        <p>SIS-orientiert · Tabs → Feld auswählen · Sprache → Transkription ins aktive Feld</p>
+  <div class="wrap">
+    <div class="hero">
+      <div class="top">
+        <div>
+          <h1>Skyjo Scoreboard · <span class="accent">3 Spieler</span></h1>
+          <p class="sub">
+            Pro Runde trägst du die Punkte ein → <span class="accent2">Addieren</span> → Verlauf + Gesamtscore.
+            Alles wird automatisch gespeichert (localStorage), damit nichts verloren geht.
+          </p>
+        </div>
+        <div class="pill"><span class="dot"></span> live</div>
       </div>
     </div>
 
-    <div class="top-actions">
-      <div class="pill" title="Status der Spracherkennung">
-        <span class="dot" id="statusDot"></span>
-        <span id="statusText">Bereit</span>
+    <div class="grid">
+      <!-- Eingabe -->
+      <div class="card">
+        <div class="head">
+          <h2>Runde eintragen</h2>
+          <div class="meta">Enter drücken = Add</div>
+        </div>
+        <div class="body">
+          <div class="row" style="margin-bottom:10px">
+            <div>
+              <label>Spieler 1</label><br>
+              <input id="n1" type="text" placeholder="Name" />
+            </div>
+            <div>
+              <label>Spieler 2</label><br>
+              <input id="n2" type="text" placeholder="Name" />
+            </div>
+            <div>
+              <label>Spieler 3</label><br>
+              <input id="n3" type="text" placeholder="Name" />
+            </div>
+            <button class="btn soft" id="saveNames" type="button">Namen speichern</button>
+          </div>
+
+          <div class="row">
+            <div>
+              <label>Punkte Runde (Spieler 1)</label><br>
+              <input id="s1" type="number" inputmode="numeric" step="1" placeholder="z.B. 12" />
+            </div>
+            <div>
+              <label>Punkte Runde (Spieler 2)</label><br>
+              <input id="s2" type="number" inputmode="numeric" step="1" placeholder="z.B. 3" />
+            </div>
+            <div>
+              <label>Punkte Runde (Spieler 3)</label><br>
+              <input id="s3" type="number" inputmode="numeric" step="1" placeholder="z.B. 21" />
+            </div>
+            <button class="btn" id="addRound" type="button">Runde hinzufügen</button>
+          </div>
+
+          <div class="hint" id="status"><b>Status:</b> Bereit.</div>
+
+          <div class="totals" id="totals"></div>
+
+          <div class="row" style="margin-top:12px">
+            <button class="btn soft" id="undo" type="button">Letzte Runde löschen</button>
+            <button class="btn danger" id="reset" type="button">Alles zurücksetzen</button>
+          </div>
+          <div class="hint">
+            Skyjo-Reminder: niedrigster Score gewinnt. Leader = aktuell am wenigsten Punkte.
+          </div>
+        </div>
       </div>
 
-      <button class="btn primary" id="btnRecord">🎤 Aufnahme starten</button>
-      <button class="btn danger" id="btnStop">⏹ Stop</button>
+      <!-- Verlauf -->
+      <div class="card">
+        <div class="head">
+          <h2>Runden-Verlauf</h2>
+          <div class="meta" id="roundCount">0 Runden</div>
+        </div>
+        <div class="body">
+          <table>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th id="th1">Spieler 1</th>
+                <th id="th2">Spieler 2</th>
+                <th id="th3">Spieler 3</th>
+                <th>Σ</th>
+              </tr>
+            </thead>
+            <tbody id="rows">
+              <tr><td colspan="5" style="color:var(--muted)">Noch keine Runde eingetragen.</td></tr>
+            </tbody>
+          </table>
+          <div class="foot">Tip: Nach jeder Runde eintragen → fertig.</div>
+        </div>
+      </div>
+    </div>
 
-      <button class="btn" id="btnSave">💾 Speichern</button>
-      <button class="btn" id="btnLoad">↩︎ Laden</button>
-      <button class="btn" id="btnExport">🧾 Export (TXT)</button>
-      <button class="btn" id="btnPrint">🖨️ PDF (Drucken)</button>
-      <button class="btn ghost" id="btnReset" title="Alles löschen">🧨 Reset</button>
+    <div class="foot">
+      Minimal, schnell, perfekt für den Tisch. ✨
     </div>
   </div>
-</header>
-
-<main>
-  <!-- LEFT -->
-  <section class="card">
-    <div class="card-head">
-      <div>
-        <h2>Fall / Patient</h2>
-        <div class="sub">Diese Daten werden im Export und PDF angezeigt.</div>
-      </div>
-      <div class="split controls-print-hide">
-        <span class="kbd">Alt</span><span class="kbd">+</span><span class="kbd">R</span>
-      </div>
-    </div>
-
-    <div class="card-body">
-      <div class="grid-2">
-        <div>
-          <label>Patient:in</label>
-          <input id="pName" placeholder="z.B. Erika Muster" />
-        </div>
-        <div>
-          <label>Geburtsdatum</label>
-          <input id="pDob" placeholder="TT.MM.JJJJ" />
-        </div>
-        <div>
-          <label>Fall-ID / Station</label>
-          <input id="pCase" placeholder="z.B. Station 3B / Fall 1842" />
-        </div>
-        <div>
-          <label>Datum / Uhrzeit</label>
-          <input id="pDate" />
-        </div>
-      </div>
-
-      <div style="height:10px"></div>
-
-      <div class="notice">
-        <b>Sprachsteuerung (MVP)</b><br/>
-        • Klick auf Feld → wird „aktiv“ (grün markiert).<br/>
-        • Aufnahme starten → Text landet im aktiven Feld.<br/>
-        • Sprachbefehle (wenn Browser stabil):<br/>
-        <span class="kbd">nächstes feld</span> · <span class="kbd">vorheriges feld</span> ·
-        <span class="kbd">tab kognition</span> · <span class="kbd">tab mobilität</span> ·
-        <span class="kbd">tab krankheit</span> · <span class="kbd">tab selbstversorgung</span> ·
-        <span class="kbd">tab soziales</span> · <span class="kbd">tab verhalten</span> ·
-        <span class="kbd">feld leeren</span> · <span class="kbd">stop</span>
-      </div>
-
-      <div style="height:12px"></div>
-
-      <div class="card" style="box-shadow:none">
-        <div class="card-head" style="border-bottom:1px solid var(--border)">
-          <div>
-            <h2>Transkript-Optionen</h2>
-            <div class="sub">Feinsteuerung für saubere Dokumentation.</div>
-          </div>
-        </div>
-        <div class="card-body">
-          <div class="grid-2">
-            <div>
-              <label>Sprache</label>
-              <select id="lang">
-                <option value="de-DE" selected>Deutsch (de-DE)</option>
-                <option value="de-CH">Deutsch (de-CH)</option>
-                <option value="de-AT">Deutsch (de-AT)</option>
-              </select>
-            </div>
-            <div>
-              <label>Auto-Satzzeichen (einfach)</label>
-              <select id="punct">
-                <option value="on" selected>Ein</option>
-                <option value="off">Aus</option>
-              </select>
-            </div>
-            <div>
-              <label>Modus</label>
-              <select id="mode">
-                <option value="append" selected>Anhängen</option>
-                <option value="overwrite">Überschreiben (aktuelles Feld)</option>
-              </select>
-            </div>
-            <div>
-              <label>Auto-Speichern</label>
-              <select id="autosave">
-                <option value="on" selected>Ein</option>
-                <option value="off">Aus</option>
-              </select>
-            </div>
-          </div>
-
-          <div style="height:10px"></div>
-          <div class="notice">
-            <b>Hinweis:</b> Web Speech API ist je nach Browser/Device unterschiedlich.
-            Für Produktionsqualität tauschen wir später nur die Engine (z.B. Whisper) aus – UI bleibt identisch.
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- RIGHT -->
-  <section class="card">
-    <div class="tabs" id="tabs">
-      <div class="tab active" data-tab="kognition">🧠 Kognition <span class="badge" id="b_kognition">0</span></div>
-      <div class="tab" data-tab="mobilitaet">🚶 Mobilität <span class="badge" id="b_mobilitaet">0</span></div>
-      <div class="tab" data-tab="krankheit">💊 Krankheit <span class="badge" id="b_krankheit">0</span></div>
-      <div class="tab" data-tab="selbstversorgung">🛁 Selbstversorgung <span class="badge" id="b_selbstversorgung">0</span></div>
-      <div class="tab" data-tab="soziales">👥 Soziales <span class="badge" id="b_soziales">0</span></div>
-      <div class="tab" data-tab="verhalten">⚠️ Verhalten <span class="badge" id="b_verhalten">0</span></div>
-    </div>
-
-    <div class="card-body">
-      <!-- KOGNITION -->
-      <div class="tab-pane" id="kognition">
-        <div class="card-head" style="padding:0 0 10px; border:0;">
-          <div>
-            <h2>1) Kognitive und kommunikative Fähigkeiten</h2>
-            <div class="sub">Klar, alltagsnah, beobachtbar formulieren.</div>
-          </div>
-        </div>
-
-        <div class="field-list" data-group="kognition">
-          <div class="field" data-field="kognition_orientierung">
-            <div class="field-top">
-              <div>
-                <p class="field-title">Orientierung (örtlich/zeitlich/situativ)</p>
-                <p class="field-hint">Datum/Ort erkennen, Tagesstruktur, Verwirrung.</p>
-              </div>
-              <div class="mini-actions controls-print-hide">
-                <button class="btn small" data-action="setActive">Aktiv</button>
-                <button class="btn small" data-action="clear">Leeren</button>
-              </div>
-            </div>
-            <textarea placeholder="Sprich oder tippe Beobachtungen..."></textarea>
-          </div>
-
-          <div class="field" data-field="kognition_kommunikation">
-            <div class="field-top">
-              <div>
-                <p class="field-title">Kommunikation / Sprache</p>
-                <p class="field-hint">Verstehen, Ausdruck, Gesprächsbeteiligung.</p>
-              </div>
-              <div class="mini-actions controls-print-hide">
-                <button class="btn small" data-action="setActive">Aktiv</button>
-                <button class="btn small" data-action="clear">Leeren</button>
-              </div>
-            </div>
-            <textarea placeholder="Sprich oder tippe..."></textarea>
-          </div>
-
-          <div class="field" data-field="kognition_gedaechtnis">
-            <div class="field-top">
-              <div>
-                <p class="field-title">Gedächtnis / Aufmerksamkeit</p>
-                <p class="field-hint">Kurzzeitgedächtnis, Konzentration, Ablenkbarkeit.</p>
-              </div>
-              <div class="mini-actions controls-print-hide">
-                <button class="btn small" data-action="setActive">Aktiv</button>
-                <button class="btn small" data-action="clear">Leeren</button>
-              </div>
-            </div>
-            <textarea placeholder="Sprich oder tippe..."></textarea>
-          </div>
-
-          <div class="field" data-field="kognition_entscheidungen">
-            <div class="field-top">
-              <div>
-                <p class="field-title">Entscheidungen / Risiken</p>
-                <p class="field-hint">Gefahrenerkennung, Einschätzung, Hilfebedarf.</p>
-              </div>
-              <div class="mini-actions controls-print-hide">
-                <button class="btn small" data-action="setActive">Aktiv</button>
-                <button class="btn small" data-action="clear">Leeren</button>
-              </div>
-            </div>
-            <textarea placeholder="Sprich oder tippe..."></textarea>
-          </div>
-        </div>
-      </div>
-
-      <!-- MOBILITÄT -->
-      <div class="tab-pane" id="mobilitaet" style="display:none;">
-        <div class="card-head" style="padding:0 0 10px; border:0;">
-          <div>
-            <h2>2) Mobilität und Beweglichkeit</h2>
-            <div class="sub">Transfers, Positionswechsel, Gehen, Treppen, Hilfsmittel.</div>
-          </div>
-        </div>
-
-        <div class="field-list" data-group="mobilitaet">
-          <div class="field" data-field="mobilitaet_positionswechsel">
-            <div class="field-top">
-              <div>
-                <p class="field-title">Positionswechsel im Bett</p>
-                <p class="field-hint">Eigenständig / teilw. Hilfe / vollständig.</p>
-              </div>
-              <div class="mini-actions controls-print-hide">
-                <button class="btn small" data-action="setActive">Aktiv</button>
-                <button class="btn small" data-action="clear">Leeren</button>
-              </div>
-            </div>
-            <textarea placeholder="Sprich oder tippe..."></textarea>
-          </div>
-
-          <div class="field" data-field="mobilitaet_transfer">
-            <div class="field-top">
-              <div>
-                <p class="field-title">Transfer / Umsetzen</p>
-                <p class="field-hint">Bett–Stuhl, Rollstuhl, Toilette etc.</p>
-              </div>
-              <div class="mini-actions controls-print-hide">
-                <button class="btn small" data-action="setActive">Aktiv</button>
-                <button class="btn small" data-action="clear">Leeren</button>
-              </div>
-            </div>
-            <textarea placeholder="Sprich oder tippe..."></textarea>
-          </div>
-
-          <div class="field" data-field="mobilitaet_fortbewegen">
-            <div class="field-top">
-              <div>
-                <p class="field-title">Fortbewegen im Wohnbereich / außen</p>
-                <p class="field-hint">Strecken, Pausen, Sturzrisiko, Begleitung.</p>
-              </div>
-              <div class="mini-actions controls-print-hide">
-                <button class="btn small" data-action="setActive">Aktiv</button>
-                <button class="btn small" data-action="clear">Leeren</button>
-              </div>
-            </div>
-            <textarea placeholder="Sprich oder tippe..."></textarea>
-          </div>
-
-          <div class="field" data-field="mobilitaet_hilfsmittel">
-            <div class="field-top">
-              <div>
-                <p class="field-title">Hilfsmittel / Treppen</p>
-                <p class="field-hint">Rollator, Stock, Treppe, Orthesen, Prothesen.</p>
-              </div>
-              <div class="mini-actions controls-print-hide">
-                <button class="btn small" data-action="setActive">Aktiv</button>
-                <button class="btn small" data-action="clear">Leeren</button>
-              </div>
-            </div>
-            <textarea placeholder="Sprich oder tippe..."></textarea>
-          </div>
-        </div>
-      </div>
-
-      <!-- KRANKHEIT -->
-      <div class="tab-pane" id="krankheit" style="display:none;">
-        <div class="card-head" style="padding:0 0 10px; border:0;">
-          <div>
-            <h2>3) Krankheitsbezogene Anforderungen & Belastungen</h2>
-            <div class="sub">Medikation, Injektionen, Wunden, Stoma, Katheter, Vitalwerte.</div>
-          </div>
-        </div>
-
-        <div class="field-list" data-group="krankheit">
-          <div class="field" data-field="krankheit_medikation">
-            <div class="field-top">
-              <div>
-                <p class="field-title">Medikation / Therapieplan</p>
-                <p class="field-hint">Einnahme, Compliance, Nebenwirkungen, Organisation.</p>
-              </div>
-              <div class="mini-actions controls-print-hide">
-                <button class="btn small" data-action="setActive">Aktiv</button>
-                <button class="btn small" data-action="clear">Leeren</button>
-              </div>
-            </div>
-            <textarea placeholder="Sprich oder tippe..."></textarea>
-          </div>
-
-          <div class="field" data-field="krankheit_injektionen_zugaenge">
-            <div class="field-top">
-              <div>
-                <p class="field-title">Injektionen / Zugänge</p>
-                <p class="field-hint">s.c./i.m./i.v., Port/PVK, Verband, Überwachung.</p>
-              </div>
-              <div class="mini-actions controls-print-hide">
-                <button class="btn small" data-action="setActive">Aktiv</button>
-                <button class="btn small" data-action="clear">Leeren</button>
-              </div>
-            </div>
-            <textarea placeholder="Sprich oder tippe..."></textarea>
-          </div>
-
-          <div class="field" data-field="krankheit_wunden">
-            <div class="field-top">
-              <div>
-                <p class="field-title">Wunden / Verband / Dekubitus</p>
-                <p class="field-hint">Lokalisation, Versorgung, Beobachtung, Schmerzen.</p>
-              </div>
-              <div class="mini-actions controls-print-hide">
-                <button class="btn small" data-action="setActive">Aktiv</button>
-                <button class="btn small" data-action="clear">Leeren</button>
-              </div>
-            </div>
-            <textarea placeholder="Sprich oder tippe..."></textarea>
-          </div>
-
-          <div class="field" data-field="krankheit_stoma_katheter">
-            <div class="field-top">
-              <div>
-                <p class="field-title">Stoma / Katheter / Ausscheidungshilfen</p>
-                <p class="field-hint">Pflege, Umgang, Komplikationen, Material.</p>
-              </div>
-              <div class="mini-actions controls-print-hide">
-                <button class="btn small" data-action="setActive">Aktiv</button>
-                <button class="btn small" data-action="clear">Leeren</button>
-              </div>
-            </div>
-            <textarea placeholder="Sprich oder tippe..."></textarea>
-          </div>
-
-          <div class="field" data-field="krankheit_messungen">
-            <div class="field-top">
-              <div>
-                <p class="field-title">Messungen / Vitalzeichen / Schmerzen</p>
-                <p class="field-hint">RR, Puls, Temp, BZ, Beobachtung & Deutung.</p>
-              </div>
-              <div class="mini-actions controls-print-hide">
-                <button class="btn small" data-action="setActive">Aktiv</button>
-                <button class="btn small" data-action="clear">Leeren</button>
-              </div>
-            </div>
-            <textarea placeholder="Sprich oder tippe..."></textarea>
-          </div>
-        </div>
-      </div>
-
-      <!-- SELBSTVERSORGUNG -->
-      <div class="tab-pane" id="selbstversorgung" style="display:none;">
-        <div class="card-head" style="padding:0 0 10px; border:0;">
-          <div>
-            <h2>4) Selbstversorgung</h2>
-            <div class="sub">Körperpflege, Ankleiden, Essen/Trinken, Toilette.</div>
-          </div>
-        </div>
-
-        <div class="field-list" data-group="selbstversorgung">
-          <div class="field" data-field="sv_koerperpflege">
-            <div class="field-top">
-              <div>
-                <p class="field-title">Körperpflege / Waschen / Duschen</p>
-                <p class="field-hint">Umfang, Hilfebedarf, Ressourcen.</p>
-              </div>
-              <div class="mini-actions controls-print-hide">
-                <button class="btn small" data-action="setActive">Aktiv</button>
-                <button class="btn small" data-action="clear">Leeren</button>
-              </div>
-            </div>
-            <textarea placeholder="Sprich oder tippe..."></textarea>
-          </div>
-
-          <div class="field" data-field="sv_ankleiden">
-            <div class="field-top">
-              <div>
-                <p class="field-title">An- und Auskleiden</p>
-                <p class="field-hint">Feinmotorik, Hilfsmittel, Zeitbedarf.</p>
-              </div>
-              <div class="mini-actions controls-print-hide">
-                <button class="btn small" data-action="setActive">Aktiv</button>
-                <button class="btn small" data-action="clear">Leeren</button>
-              </div>
-            </div>
-            <textarea placeholder="Sprich oder tippe..."></textarea>
-          </div>
-
-          <div class="field" data-field="sv_essen_trinken">
-            <div class="field-top">
-              <div>
-                <p class="field-title">Essen & Trinken</p>
-                <p class="field-hint">Aufnahme, Zubereitung, Dysphagie, Trinkmenge.</p>
-              </div>
-              <div class="mini-actions controls-print-hide">
-                <button class="btn small" data-action="setActive">Aktiv</button>
-                <button class="btn small" data-action="clear">Leeren</button>
-              </div>
-            </div>
-            <textarea placeholder="Sprich oder tippe..."></textarea>
-          </div>
-
-          <div class="field" data-field="sv_toilette">
-            <div class="field-top">
-              <div>
-                <p class="field-title">Toilette / Kontinenz / Inkontinenz</p>
-                <p class="field-hint">Transfers, Versorgung, Hilfsmittel.</p>
-              </div>
-              <div class="mini-actions controls-print-hide">
-                <button class="btn small" data-action="setActive">Aktiv</button>
-                <button class="btn small" data-action="clear">Leeren</button>
-              </div>
-            </div>
-            <textarea placeholder="Sprich oder tippe..."></textarea>
-          </div>
-        </div>
-      </div>
-
-      <!-- SOZIALES -->
-      <div class="tab-pane" id="soziales" style="display:none;">
-        <div class="card-head" style="padding:0 0 10px; border:0;">
-          <div>
-            <h2>5) Leben in sozialen Beziehungen</h2>
-            <div class="sub">Tagesstruktur, Kontakte, Teilhabe, Selbstbeschäftigung.</div>
-          </div>
-        </div>
-
-        <div class="field-list" data-group="soziales">
-          <div class="field" data-field="soziales_tagesstruktur">
-            <div class="field-top">
-              <div>
-                <p class="field-title">Tagesablauf / Struktur</p>
-                <p class="field-hint">Routinen, Anpassung an Veränderungen.</p>
-              </div>
-              <div class="mini-actions controls-print-hide">
-                <button class="btn small" data-action="setActive">Aktiv</button>
-                <button class="btn small" data-action="clear">Leeren</button>
-              </div>
-            </div>
-            <textarea placeholder="Sprich oder tippe..."></textarea>
-          </div>
-
-          <div class="field" data-field="soziales_kontakte">
-            <div class="field-top">
-              <div>
-                <p class="field-title">Kontakte / Interaktion</p>
-                <p class="field-hint">Kontaktaufnahme, Beziehungspflege, Besuch.</p>
-              </div>
-              <div class="mini-actions controls-print-hide">
-                <button class="btn small" data-action="setActive">Aktiv</button>
-                <button class="btn small" data-action="clear">Leeren</button>
-              </div>
-            </div>
-            <textarea placeholder="Sprich oder tippe..."></textarea>
-          </div>
-
-          <div class="field" data-field="soziales_freizeit">
-            <div class="field-top">
-              <div>
-                <p class="field-title">Selbstbeschäftigung / Teilhabe</p>
-                <p class="field-hint">Interessen, Aktivitäten, Motivation, Anleitung.</p>
-              </div>
-              <div class="mini-actions controls-print-hide">
-                <button class="btn small" data-action="setActive">Aktiv</button>
-                <button class="btn small" data-action="clear">Leeren</button>
-              </div>
-            </div>
-            <textarea placeholder="Sprich oder tippe..."></textarea>
-          </div>
-        </div>
-      </div>
-
-      <!-- VERHALTEN -->
-      <div class="tab-pane" id="verhalten" style="display:none;">
-        <div class="card-head" style="padding:0 0 10px; border:0;">
-          <div>
-            <h2>Verhaltensweisen & psychische Problemlagen</h2>
-            <div class="sub">Unruhe, Aggression, Ängste, Ablehnung von Maßnahmen.</div>
-          </div>
-        </div>
-
-        <div class="field-list" data-group="verhalten">
-          <div class="field" data-field="verhalten_unruhe">
-            <div class="field-top">
-              <div>
-                <p class="field-title">Unruhe / nächtliche Auffälligkeiten</p>
-                <p class="field-hint">Schlafrhythmus, Umherirren, Weglauftendenz.</p>
-              </div>
-              <div class="mini-actions controls-print-hide">
-                <button class="btn small" data-action="setActive">Aktiv</button>
-                <button class="btn small" data-action="clear">Leeren</button>
-              </div>
-            </div>
-            <textarea placeholder="Sprich oder tippe..."></textarea>
-          </div>
-
-          <div class="field" data-field="verhalten_aggression">
-            <div class="field-top">
-              <div>
-                <p class="field-title">Aggression / verbale Auffälligkeiten</p>
-                <p class="field-hint">Auslöser, Situationen, Deeskalation.</p>
-              </div>
-              <div class="mini-actions controls-print-hide">
-                <button class="btn small" data-action="setActive">Aktiv</button>
-                <button class="btn small" data-action="clear">Leeren</button>
-              </div>
-            </div>
-            <textarea placeholder="Sprich oder tippe..."></textarea>
-          </div>
-
-          <div class="field" data-field="verhalten_angst">
-            <div class="field-top">
-              <div>
-                <p class="field-title">Ängste / depressive Stimmung</p>
-                <p class="field-hint">Weinen, Rückzug, Antrieb, Sicherheitsbedürfnis.</p>
-              </div>
-              <div class="mini-actions controls-print-hide">
-                <button class="btn small" data-action="setActive">Aktiv</button>
-                <button class="btn small" data-action="clear">Leeren</button>
-              </div>
-            </div>
-            <textarea placeholder="Sprich oder tippe..."></textarea>
-          </div>
-
-          <div class="field" data-field="verhalten_ablehnung">
-            <div class="field-top">
-              <div>
-                <p class="field-title">Ablehnung von Maßnahmen / Kooperation</p>
-                <p class="field-hint">Was wird abgelehnt, wie oft, was hilft.</p>
-              </div>
-              <div class="mini-actions controls-print-hide">
-                <button class="btn small" data-action="setActive">Aktiv</button>
-                <button class="btn small" data-action="clear">Leeren</button>
-              </div>
-            </div>
-            <textarea placeholder="Sprich oder tippe..."></textarea>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-</main>
-
-<div class="footer">
-  Tipp: iPhone/Safari ist bei Spracherkennung oft eingeschränkt. Chrome/Edge auf Desktop/Android ist meist stabiler.
-</div>
 
 <script>
-  // =========================
-  // Utils
-  // =========================
-  const $ = (sel, root=document) => root.querySelector(sel);
-  const $$ = (sel, root=document) => Array.from(root.querySelectorAll(sel));
-  const nowLocal = () => {
-    const d = new Date();
-    const pad = n => String(n).padStart(2,'0');
-    return `${pad(d.getDate())}.${pad(d.getMonth()+1)}.${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  const KEY = "skyjo_scoreboard_v1";
+
+  const state = {
+    names: ["Spieler 1","Spieler 2","Spieler 3"],
+    rounds: [] // each: [a,b,c]
   };
-  const STORAGE_KEY = "cis_pflegetool_v1";
 
-  // =========================
-  // Tabs
-  // =========================
-  const tabsEl = $("#tabs");
-  const tabs = $$(".tab", tabsEl);
-  const panes = $$(".tab-pane");
+  function $(id){ return document.getElementById(id); }
 
-  function showTab(id){
-    tabs.forEach(t => t.classList.toggle("active", t.dataset.tab === id));
-    panes.forEach(p => p.style.display = (p.id === id) ? "block" : "none");
-    const firstField = $(`[data-group="${id}"] .field`);
-    if(firstField) setActiveField(firstField);
-    updateBadges();
-    if(autosaveOn()) saveToLocal(true);
-  }
-  tabs.forEach(t => t.addEventListener("click", () => showTab(t.dataset.tab)));
-
-  // =========================
-  // Fields + Active
-  // =========================
-  let activeFieldEl = null;
-
-  function setActiveField(fieldEl){
-    $$(".field").forEach(f => f.classList.remove("active"));
-    fieldEl.classList.add("active");
-    activeFieldEl = fieldEl;
-    const ta = $("textarea", fieldEl);
-    if(ta) ta.focus({preventScroll:true});
+  function setStatus(msg){
+    $("status").innerHTML = "<b>Status:</b> " + msg;
   }
 
-  $$(".field").forEach(field => {
-    field.addEventListener("click", (e) => {
-      if(e.target && e.target.closest("button")) return;
-      setActiveField(field);
-    });
-
-    const btnSet = $(`[data-action="setActive"]`, field);
-    const btnClear = $(`[data-action="clear"]`, field);
-    const ta = $("textarea", field);
-
-    btnSet?.addEventListener("click", (e) => { e.preventDefault(); setActiveField(field); });
-    btnClear?.addEventListener("click", (e) => {
-      e.preventDefault();
-      ta.value = "";
-      updateBadges();
-      if(autosaveOn()) saveToLocal(true);
-    });
-
-    ta?.addEventListener("input", () => {
-      updateBadges();
-      if(autosaveOn()) saveToLocal(true);
-    });
-  });
-
-  setActiveField($(`#kognition [data-group="kognition"] .field`));
-
-  // =========================
-  // Badges
-  // =========================
-  function groupCount(groupId){
-    const fields = $$(`[data-group="${groupId}"] .field`);
-    let c=0;
-    fields.forEach(f => {
-      const v = ($("textarea", f)?.value || "").trim();
-      if(v.length) c++;
-    });
-    return c;
-  }
-  function updateBadges(){
-    const map = ["kognition","mobilitaet","krankheit","selbstversorgung","soziales","verhalten"];
-    map.forEach(id => {
-      const b = $(`#b_${id}`);
-      if(b) b.textContent = String(groupCount(id));
-    });
-  }
-  updateBadges();
-
-  // =========================
-  // Patient meta
-  // =========================
-  const pName = $("#pName");
-  const pDob  = $("#pDob");
-  const pCase = $("#pCase");
-  const pDate = $("#pDate");
-  pDate.value = nowLocal();
-
-  // =========================
-  // Speech Recognition
-  // =========================
-  const statusDot = $("#statusDot");
-  const statusText = $("#statusText");
-  const btnRecord = $("#btnRecord");
-  const btnStop = $("#btnStop");
-
-  const langSel = $("#lang");
-  const punctSel = $("#punct");
-  const modeSel = $("#mode");
-  const autosaveSel = $("#autosave");
-
-  function autosaveOn(){ return autosaveSel.value === "on"; }
-
-  let recognition = null;
-  let isRecording = false;
-
-  function setStatus(kind, text){
-    statusText.textContent = text;
-    statusDot.classList.remove("live","warn","err");
-    if(kind === "live") statusDot.classList.add("live");
-    if(kind === "warn") statusDot.classList.add("warn");
-    if(kind === "err")  statusDot.classList.add("err");
+  function load(){
+    try{
+      const raw = localStorage.getItem(KEY);
+      if(!raw) return;
+      const saved = JSON.parse(raw);
+      if(saved?.names?.length === 3) state.names = saved.names;
+      if(Array.isArray(saved?.rounds)) state.rounds = saved.rounds;
+    } catch {}
   }
 
-  function applySimplePunctuation(text){
-    if(punctSel.value !== "on") return text;
-    const t = text.replace(/\s+/g," ").trim();
-    const ends = /[.!?…]$/.test(t);
-    if(!ends && t.length > 18) return t + ".";
+  function save(){
+    localStorage.setItem(KEY, JSON.stringify(state));
+  }
+
+  function renderNames(){
+    $("n1").value = state.names[0];
+    $("n2").value = state.names[1];
+    $("n3").value = state.names[2];
+
+    $("th1").textContent = state.names[0];
+    $("th2").textContent = state.names[1];
+    $("th3").textContent = state.names[2];
+  }
+
+  function totals(){
+    const t = [0,0,0];
+    for(const r of state.rounds){
+      t[0] += r[0]; t[1] += r[1]; t[2] += r[2];
+    }
     return t;
   }
 
-  function ensureRecognition(){
-    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if(!SR) return null;
+  function renderTotals(){
+    const t = totals();
+    const min = Math.min(...t);
+    const max = Math.max(...t);
 
-    const r = new SR();
-    r.lang = langSel.value || "de-DE";
-    r.continuous = true;
-    r.interimResults = true;
+    const box = (i)=> {
+      const isLeader = t[i] === min && (t.filter(x=>x===min).length === 1);
+      const isTrailer = t[i] === max && (t.filter(x=>x===max).length === 1);
+      const cls = isLeader ? "leader" : isTrailer ? "trailer" : "";
+      const hint = isLeader ? "Aktuell vorne (niedrigster Score)" : isTrailer ? "Aktuell hinten" : "—";
 
-    r.onstart = () => { isRecording = true; setStatus("live","🎤 Aufnahme läuft..."); };
-    r.onend = () => { isRecording = false; setStatus("warn","Aufnahme beendet"); };
-    r.onerror = (e) => {
-      isRecording = false;
-      console.warn("Speech error:", e);
-      setStatus("err", "Spracherkennung Fehler: " + (e.error || "unknown"));
+      return `
+        <div class="totalBox">
+          <div class="name ${cls}">${state.names[i]}</div>
+          <div class="score ${cls}">${t[i]}</div>
+          <div class="small">${hint}</div>
+        </div>`;
     };
 
-    r.onresult = (event) => {
-      let interim = "";
-      let finalText = "";
-
-      for(let i = event.resultIndex; i < event.results.length; i++){
-        const res = event.results[i];
-        const txt = (res[0] && res[0].transcript) ? res[0].transcript : "";
-        if(res.isFinal) finalText += txt;
-        else interim += txt;
-      }
-
-      if(finalText.trim()){
-        const cmdHandled = tryHandleCommand(finalText.trim().toLowerCase());
-        if(cmdHandled) return;
-
-        const ta = activeFieldEl ? $("textarea", activeFieldEl) : null;
-        if(!ta) return;
-
-        const cleaned = applySimplePunctuation(finalText.trim());
-        if(modeSel.value === "overwrite"){
-          ta.value = cleaned + " ";
-        } else {
-          ta.value = (ta.value || "") + cleaned + " ";
-        }
-
-        updateBadges();
-        if(autosaveOn()) saveToLocal(true);
-      }
-
-      if(interim.trim()){
-        setStatus("live", "🎤 " + interim.trim());
-      } else if(isRecording){
-        setStatus("live", "🎤 Aufnahme läuft...");
-      }
-    };
-
-    return r;
+    $("totals").innerHTML = box(0)+box(1)+box(2);
   }
 
-  function startRecording(){
-    if(isRecording) return;
-    recognition = ensureRecognition();
-    if(!recognition){
-      setStatus("err","Keine Spracherkennung verfügbar (Browser unterstützt es nicht).");
-      alert("Dein Browser unterstützt SpeechRecognition nicht zuverlässig. Nutze z.B. Chrome/Edge (Desktop/Android). Für Produktion: Whisper.");
+  function renderRounds(){
+    $("roundCount").textContent = `${state.rounds.length} Runden`;
+    const tbody = $("rows");
+
+    if(state.rounds.length === 0){
+      tbody.innerHTML = `<tr><td colspan="5" style="color:var(--muted)">Noch keine Runde eingetragen.</td></tr>`;
       return;
     }
-    setStatus("warn","Starte Aufnahme...");
-    recognition.start();
+
+    tbody.innerHTML = state.rounds.map((r, idx)=>{
+      const sum = r[0]+r[1]+r[2];
+      return `
+        <tr>
+          <td>${idx+1}</td>
+          <td>${r[0]}</td>
+          <td>${r[1]}</td>
+          <td>${r[2]}</td>
+          <td><b>${sum}</b></td>
+        </tr>`;
+    }).join("");
   }
 
-  function stopRecording(){
-    try{ recognition && recognition.stop(); }catch(e){}
+  function render(){
+    renderNames();
+    renderTotals();
+    renderRounds();
+    save();
   }
 
-  btnRecord.addEventListener("click", startRecording);
-  btnStop.addEventListener("click", stopRecording);
-
-  // Alt+R toggle
-  window.addEventListener("keydown", (e) => {
-    if(e.altKey && (e.key.toLowerCase() === "r")){
-      e.preventDefault();
-      if(isRecording) stopRecording();
-      else startRecording();
-    }
-  });
-
-  langSel.addEventListener("change", () => {
-    if(isRecording){ stopRecording(); setTimeout(startRecording, 250); }
-    if(autosaveOn()) saveToLocal(true);
-  });
-  punctSel.addEventListener("change", () => { if(autosaveOn()) saveToLocal(true); });
-  modeSel.addEventListener("change", () => { if(autosaveOn()) saveToLocal(true); });
-  autosaveSel.addEventListener("change", () => { if(autosaveOn()) saveToLocal(true); });
-
-  // =========================
-  // Voice Commands (MVP)
-  // =========================
-  function getCurrentGroupId(){
-    const activeTab = $(".tab.active");
-    return activeTab ? activeTab.dataset.tab : "kognition";
-  }
-  function getFieldsInCurrentGroup(){
-    const gid = getCurrentGroupId();
-    return $$(`[data-group="${gid}"] .field`);
-  }
-  function nextField(){
-    const fields = getFieldsInCurrentGroup();
-    if(!fields.length) return;
-    const idx = fields.indexOf(activeFieldEl);
-    const next = fields[Math.min(idx + 1, fields.length - 1)];
-    if(next) setActiveField(next);
-  }
-  function prevField(){
-    const fields = getFieldsInCurrentGroup();
-    if(!fields.length) return;
-    const idx = fields.indexOf(activeFieldEl);
-    const prev = fields[Math.max(idx - 1, 0)];
-    if(prev) setActiveField(prev);
+  function parseIntSafe(v){
+    if(v === "" || v == null) return null;
+    const n = Number(v);
+    if(!Number.isFinite(n)) return null;
+    return Math.trunc(n);
   }
 
-  function tryHandleCommand(raw){
-    const t = raw.trim().toLowerCase();
-
-    if(t.includes("nächstes feld") || t.includes("naechstes feld")){
-      nextField(); setStatus("live","✅ Nächstes Feld"); return true;
-    }
-    if(t.includes("vorheriges feld") || t.includes("letztes feld") || t.includes("zurück feld") || t.includes("zurueck feld")){
-      prevField(); setStatus("live","✅ Vorheriges Feld"); return true;
-    }
-
-    if(t.includes("tab kognition")){ showTab("kognition"); setStatus("live","✅ Tab: Kognition"); return true; }
-    if(t.includes("tab mobilität") || t.includes("tab mobilitaet")){ showTab("mobilitaet"); setStatus("live","✅ Tab: Mobilität"); return true; }
-    if(t.includes("tab krankheit")){ showTab("krankheit"); setStatus("live","✅ Tab: Krankheit"); return true; }
-    if(t.includes("tab selbstversorgung")){ showTab("selbstversorgung"); setStatus("live","✅ Tab: Selbstversorgung"); return true; }
-    if(t.includes("tab soziales")){ showTab("soziales"); setStatus("live","✅ Tab: Soziales"); return true; }
-    if(t.includes("tab verhalten")){ showTab("verhalten"); setStatus("live","✅ Tab: Verhalten"); return true; }
-
-    if(t.includes("feld leeren") || t.includes("lösche feld") || t.includes("loesche feld")){
-      const ta = activeFieldEl ? $("textarea", activeFieldEl) : null;
-      if(ta){ ta.value=""; updateBadges(); if(autosaveOn()) saveToLocal(true); }
-      setStatus("live","✅ Feld geleert");
-      return true;
-    }
-
-    if(t === "stop" || t.includes("aufnahme stop")){
-      stopRecording();
-      return true;
-    }
-
-    return false;
+  function clearScoreInputs(){
+    $("s1").value = "";
+    $("s2").value = "";
+    $("s3").value = "";
+    $("s1").focus();
   }
 
-  // =========================
-  // Save/Load/Export/Print/Reset
-  // =========================
-  const btnSave = $("#btnSave");
-  const btnLoad = $("#btnLoad");
-  const btnExport = $("#btnExport");
-  const btnPrint = $("#btnPrint");
-  const btnReset = $("#btnReset");
+  function addRound(){
+    const a = parseIntSafe($("s1").value);
+    const b = parseIntSafe($("s2").value);
+    const c = parseIntSafe($("s3").value);
 
-  function collectData(){
-    const data = {
-      meta:{
-        pName: pName.value || "",
-        pDob: pDob.value || "",
-        pCase: pCase.value || "",
-        pDate: pDate.value || "",
-        lang: langSel.value,
-        punct: punctSel.value,
-        mode: modeSel.value,
-        autosave: autosaveSel.value,
-        savedAt: new Date().toISOString()
-      },
-      fields:{}
-    };
-    $$(".field").forEach(f => {
-      const key = f.dataset.field;
-      const val = ($("textarea", f)?.value || "");
-      data.fields[key] = val;
-    });
-    return data;
-  }
-
-  function applyData(data){
-    if(!data) return;
-    const m = data.meta || {};
-    pName.value = m.pName || "";
-    pDob.value  = m.pDob || "";
-    pCase.value = m.pCase || "";
-    pDate.value = m.pDate || nowLocal();
-
-    if(m.lang) langSel.value = m.lang;
-    if(m.punct) punctSel.value = m.punct;
-    if(m.mode) modeSel.value = m.mode;
-    if(m.autosave) autosaveSel.value = m.autosave;
-
-    const fields = data.fields || {};
-    $$(".field").forEach(f => {
-      const key = f.dataset.field;
-      const ta = $("textarea", f);
-      if(ta && typeof fields[key] === "string") ta.value = fields[key];
-    });
-
-    updateBadges();
-  }
-
-  function saveToLocal(silent=false){
-    const data = collectData();
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-    if(!silent) setStatus("warn","💾 Gespeichert");
-  }
-
-  function loadFromLocal(){
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if(!raw){
-      setStatus("warn","Nichts gespeichert");
-      alert("Kein gespeicherter Datensatz gefunden.");
+    if(a === null || b === null || c === null){
+      setStatus("Bitte alle 3 Punktzahlen eingeben.");
       return;
     }
-    try{
-      const data = JSON.parse(raw);
-      applyData(data);
-      setStatus("warn","↩︎ Geladen");
-    }catch(e){
-      console.error(e);
-      setStatus("err","Laden fehlgeschlagen");
-      alert("Daten konnten nicht geladen werden (JSON defekt).");
+
+    state.rounds.push([a,b,c]);
+    setStatus(`Runde ${state.rounds.length} hinzugefügt: ${a}, ${b}, ${c}`);
+    render();
+    clearScoreInputs();
+  }
+
+  function saveNames(){
+    const n1 = $("n1").value.trim() || "Spieler 1";
+    const n2 = $("n2").value.trim() || "Spieler 2";
+    const n3 = $("n3").value.trim() || "Spieler 3";
+    state.names = [n1,n2,n3];
+    setStatus("Namen gespeichert.");
+    render();
+  }
+
+  function undo(){
+    if(state.rounds.length === 0){
+      setStatus("Keine Runde zum Löschen.");
+      return;
     }
-  }
-
-  function sectionText(keys, fields){
-    const out = [];
-    keys.forEach(k => {
-      const val = (fields[k] || "").trim();
-      out.push(`- ${k}:`);
-      out.push(val ? `  ${val}` : "  (leer)");
-      out.push("");
-    });
-    return out.join("\n");
-  }
-
-  function makeExportText(){
-    const data = collectData();
-    const lines = [];
-    lines.push("CIS Pflege – Dokumentation (SIS-orientiert)");
-    lines.push("=========================================");
-    lines.push(`Patient: ${data.meta.pName}`);
-    lines.push(`Geburtsdatum: ${data.meta.pDob}`);
-    lines.push(`Fall/Station: ${data.meta.pCase}`);
-    lines.push(`Datum/Uhrzeit: ${data.meta.pDate}`);
-    lines.push("");
-
-    lines.push("1) Kognitive und kommunikative Fähigkeiten");
-    lines.push("-----------------------------------------");
-    lines.push(sectionText(
-      ["kognition_orientierung","kognition_kommunikation","kognition_gedaechtnis","kognition_entscheidungen"],
-      data.fields
-    ));
-
-    lines.push("2) Mobilität und Beweglichkeit");
-    lines.push("------------------------------");
-    lines.push(sectionText(
-      ["mobilitaet_positionswechsel","mobilitaet_transfer","mobilitaet_fortbewegen","mobilitaet_hilfsmittel"],
-      data.fields
-    ));
-
-    lines.push("3) Krankheitsbezogene Anforderungen & Belastungen");
-    lines.push("------------------------------------------------");
-    lines.push(sectionText(
-      ["krankheit_medikation","krankheit_injektionen_zugaenge","krankheit_wunden","krankheit_stoma_katheter","krankheit_messungen"],
-      data.fields
-    ));
-
-    lines.push("4) Selbstversorgung");
-    lines.push("-------------------");
-    lines.push(sectionText(
-      ["sv_koerperpflege","sv_ankleiden","sv_essen_trinken","sv_toilette"],
-      data.fields
-    ));
-
-    lines.push("5) Leben in sozialen Beziehungen");
-    lines.push("-------------------------------");
-    lines.push(sectionText(
-      ["soziales_tagesstruktur","soziales_kontakte","soziales_freizeit"],
-      data.fields
-    ));
-
-    lines.push("6) Verhaltensweisen & psychische Problemlagen");
-    lines.push("--------------------------------------------");
-    lines.push(sectionText(
-      ["verhalten_unruhe","verhalten_aggression","verhalten_angst","verhalten_ablehnung"],
-      data.fields
-    ));
-
-    lines.push("");
-    lines.push(`Export erstellt: ${new Date().toLocaleString()}`);
-    return lines.join("\n");
-  }
-
-  function downloadText(filename, text){
-    const blob = new Blob([text], {type:"text/plain;charset=utf-8"});
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = filename;
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    URL.revokeObjectURL(url);
+    const last = state.rounds.pop();
+    setStatus(`Letzte Runde gelöscht (${last.join(", ")}).`);
+    render();
   }
 
   function resetAll(){
-    if(!confirm("Wirklich alles löschen?")) return;
-
-    [pName,pDob,pCase].forEach(el => el.value = "");
-    pDate.value = nowLocal();
-
-    $$(".field textarea").forEach(ta => ta.value = "");
-    updateBadges();
-    localStorage.removeItem(STORAGE_KEY);
-    setStatus("warn","Zurückgesetzt");
+    if(!confirm("Wirklich alles zurücksetzen?")) return;
+    state.names = ["Spieler 1","Spieler 2","Spieler 3"];
+    state.rounds = [];
+    setStatus("Zurückgesetzt.");
+    render();
+    clearScoreInputs();
   }
 
-  btnSave.addEventListener("click", () => saveToLocal(false));
-  btnLoad.addEventListener("click", loadFromLocal);
-  btnExport.addEventListener("click", () => {
-    const txt = makeExportText();
-    const safeName = (pName.value || "patient").trim().replace(/[^\w\-]+/g,"_");
-    downloadText(`CIS_Doku_${safeName}.txt`, txt);
-    setStatus("warn","🧾 Export erstellt");
-  });
-  btnPrint.addEventListener("click", () => window.print());
-  btnReset.addEventListener("click", resetAll);
+  // Wire up
+  $("addRound").addEventListener("click", addRound);
+  $("saveNames").addEventListener("click", saveNames);
+  $("undo").addEventListener("click", undo);
+  $("reset").addEventListener("click", resetAll);
 
-  // Autosave meta changes
-  [pName,pDob,pCase,pDate,langSel,punctSel,modeSel,autosaveSel].forEach(el => {
-    el.addEventListener("input", () => { if(autosaveOn()) saveToLocal(true); });
-    el.addEventListener("change", () => { if(autosaveOn()) saveToLocal(true); });
+  // Enter adds round (nice on phone)
+  ["s1","s2","s3"].forEach(id=>{
+    $(id).addEventListener("keydown", (e)=>{
+      if(e.key === "Enter") addRound();
+    });
   });
 
-  // Load automatically if exists
-  (function boot(){
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if(raw){
-      try{
-        applyData(JSON.parse(raw));
-        setStatus("warn","↩︎ Letzten Stand geladen");
-      }catch(e){
-        console.warn("Boot load failed", e);
-      }
-    } else {
-      setStatus("warn","Bereit");
-    }
-  })();
+  load();
+  render();
+  clearScoreInputs();
 </script>
 </body>
 </html>
