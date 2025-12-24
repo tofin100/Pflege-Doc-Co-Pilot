@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Skyjo Scoreboard (3 Spieler)</title>
+  <title>Skyjo Scoreboard (3 Spieler) – Sprachsteuerung</title>
   <style>
     :root{
       --bg:#070b14;
@@ -16,6 +16,7 @@
       --accent2:#a78bfa;
       --good:#34d399;
       --bad:#fb7185;
+      --warn:#f59e0b;
       --shadow:0 18px 50px rgba(0,0,0,.35);
     }
     *{box-sizing:border-box}
@@ -50,6 +51,8 @@
       white-space:nowrap;
     }
     .pill .dot{width:10px;height:10px;border-radius:99px;background:var(--good);box-shadow:0 0 18px rgba(52,211,153,.35)}
+    .pill .dot.warn{background:var(--warn);box-shadow:0 0 18px rgba(245,158,11,.35)}
+    .pill .dot.bad{background:var(--bad);box-shadow:0 0 18px rgba(251,113,133,.35)}
     .grid{display:grid;gap:14px}
     @media(min-width:940px){ .grid{grid-template-columns:1.05fr .95fr} }
 
@@ -90,12 +93,33 @@
       border-radius:12px;
       font-weight:950;
       cursor:pointer;
+      user-select:none;
     }
     .btn:hover{background:rgba(255,255,255,.10)}
     .btn.danger{border-color:rgba(251,113,133,.35)}
     .btn.danger:hover{background:rgba(251,113,133,.12)}
     .btn.soft{border-color:rgba(125,211,252,.25)}
     .btn.soft:hover{background:rgba(125,211,252,.10)}
+    .btn.voice{
+      border-color:rgba(52,211,153,.28);
+      background:rgba(52,211,153,.10);
+    }
+    .btn.voice:hover{background:rgba(52,211,153,.16)}
+    .btn.voice.stop{
+      border-color:rgba(251,113,133,.35);
+      background:rgba(251,113,133,.12);
+    }
+    .btn.voice.stop:hover{background:rgba(251,113,133,.18)}
+    .kbd{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size:11px;
+      color:var(--muted);
+      border:1px solid var(--border);
+      background:rgba(0,0,0,.22);
+      padding:3px 7px;
+      border-radius:8px;
+      user-select:none;
+    }
 
     table{width:100%;border-collapse:separate;border-spacing:0;margin-top:10px}
     th, td{
@@ -128,6 +152,30 @@
     .foot{margin:18px 0 6px 0;text-align:center;color:var(--muted);font-size:12px;opacity:.9}
     .accent{color:var(--accent);font-weight:1000}
     .accent2{color:var(--accent2);font-weight:1000}
+
+    .voicePanel{
+      margin-top:12px;
+      border:1px solid rgba(52,211,153,.22);
+      background:rgba(52,211,153,.06);
+      border-radius:16px;
+      padding:12px;
+    }
+    .voiceLine{
+      display:flex; gap:10px; flex-wrap:wrap; align-items:center;
+      justify-content:space-between;
+    }
+    .voiceText{
+      margin-top:10px;
+      padding:10px 12px;
+      border:1px solid var(--border);
+      border-radius:14px;
+      background:rgba(0,0,0,.18);
+      color:var(--text);
+      font-size:13px;
+      line-height:1.4;
+      min-height:46px;
+    }
+    .voiceText .muted{ color:var(--muted); }
   </style>
 </head>
 <body>
@@ -135,13 +183,14 @@
     <div class="hero">
       <div class="top">
         <div>
-          <h1>Skyjo Scoreboard · <span class="accent">3 Spieler</span></h1>
+          <h1>Skyjo Scoreboard · <span class="accent">3 Spieler</span> · <span class="accent2">Voice</span></h1>
           <p class="sub">
-            Pro Runde trägst du die Punkte ein → <span class="accent2">Addieren</span> → Verlauf + Gesamtscore.
-            Alles wird automatisch gespeichert (localStorage), damit nichts verloren geht.
+            Punkte per Tipp oder per Sprache eintragen. Sprachbefehle: z.B.
+            <span class="kbd">runde 12 3 21</span>, <span class="kbd">runde spieler 1 12 spieler 2 3 spieler 3 21</span>,
+            <span class="kbd">undo</span>, <span class="kbd">reset</span>, <span class="kbd">namen anna ben chris</span>.
           </p>
         </div>
-        <div class="pill"><span class="dot"></span> live</div>
+        <div class="pill" id="pill"><span class="dot" id="pillDot"></span><span id="pillText">bereit</span></div>
       </div>
     </div>
 
@@ -150,7 +199,7 @@
       <div class="card">
         <div class="head">
           <h2>Runde eintragen</h2>
-          <div class="meta">Enter drücken = Add</div>
+          <div class="meta">Enter = Add · <span class="kbd">Alt+R</span> = Voice Start/Stop</div>
         </div>
         <div class="body">
           <div class="row" style="margin-bottom:10px">
@@ -183,6 +232,33 @@
               <input id="s3" type="number" inputmode="numeric" step="1" placeholder="z.B. 21" />
             </div>
             <button class="btn" id="addRound" type="button">Runde hinzufügen</button>
+          </div>
+
+          <!-- Voice Panel -->
+          <div class="voicePanel">
+            <div class="voiceLine">
+              <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+                <button class="btn voice" id="voiceStart" type="button">🎤 Voice Start</button>
+                <button class="btn voice stop" id="voiceStop" type="button">⏹ Voice Stop</button>
+                <span class="kbd">Beispiele:</span>
+                <span class="kbd">runde 12 3 21</span>
+                <span class="kbd">undo</span>
+                <span class="kbd">reset</span>
+              </div>
+              <div class="meta">Deutsch (de-DE) · Browser SpeechRecognition</div>
+            </div>
+            <div class="voiceText" id="voiceBox">
+              <span class="muted">Voice bereit. Drücke „Voice Start“ und sag z.B. „Runde 12 3 21“.</span>
+            </div>
+            <div class="hint">
+              <b>Voice Commands:</b><br>
+              • <span class="kbd">runde 12 3 21</span> (fügt Runde hinzu)<br>
+              • <span class="kbd">runde spieler 1 12 spieler 2 3 spieler 3 21</span> (auch ok)<br>
+              • <span class="kbd">undo</span> / <span class="kbd">letzte runde löschen</span><br>
+              • <span class="kbd">reset</span> / <span class="kbd">alles zurücksetzen</span><br>
+              • <span class="kbd">namen anna ben chris</span> (setzt Namen + speichert)<br>
+              • <span class="kbd">stopp</span> (stoppt Voice)
+            </div>
           </div>
 
           <div class="hint" id="status"><b>Status:</b> Bereit.</div>
@@ -231,7 +307,7 @@
   </div>
 
 <script>
-  const KEY = "skyjo_scoreboard_v1";
+  const KEY = "skyjo_scoreboard_v1_voice";
 
   const state = {
     names: ["Spieler 1","Spieler 2","Spieler 3"],
@@ -242,6 +318,19 @@
 
   function setStatus(msg){
     $("status").innerHTML = "<b>Status:</b> " + msg;
+  }
+
+  function setPill(kind, text){
+    const dot = $("pillDot");
+    const pillText = $("pillText");
+    dot.classList.remove("warn","bad");
+    if(kind === "warn") dot.classList.add("warn");
+    if(kind === "bad") dot.classList.add("bad");
+    pillText.textContent = text;
+  }
+
+  function setVoiceBox(html){
+    $("voiceBox").innerHTML = html;
   }
 
   function load(){
@@ -341,20 +430,24 @@
     $("s1").focus();
   }
 
-  function addRound(){
-    const a = parseIntSafe($("s1").value);
-    const b = parseIntSafe($("s2").value);
-    const c = parseIntSafe($("s3").value);
+  function addRound(a=null,b=null,c=null, source="manual"){
+    const A = (a===null) ? parseIntSafe($("s1").value) : a;
+    const B = (b===null) ? parseIntSafe($("s2").value) : b;
+    const C = (c===null) ? parseIntSafe($("s3").value) : c;
 
-    if(a === null || b === null || c === null){
+    if(A === null || B === null || C === null){
       setStatus("Bitte alle 3 Punktzahlen eingeben.");
-      return;
+      return false;
     }
 
-    state.rounds.push([a,b,c]);
-    setStatus(`Runde ${state.rounds.length} hinzugefügt: ${a}, ${b}, ${c}`);
+    state.rounds.push([A,B,C]);
+    setStatus(`Runde ${state.rounds.length} hinzugefügt: ${A}, ${B}, ${C}`);
+    if(source === "voice"){
+      setVoiceBox(`✅ <b>Runde hinzugefügt</b>: ${A}, ${B}, ${C}<br><span class="muted">Sag wieder: „Runde 5 2 14“ oder „undo“.</span>`);
+    }
     render();
     clearScoreInputs();
+    return true;
   }
 
   function saveNames(){
@@ -366,41 +459,233 @@
     render();
   }
 
-  function undo(){
+  function saveNamesFromArray(arr){
+    const n1 = (arr[0] || "Spieler 1").trim() || "Spieler 1";
+    const n2 = (arr[1] || "Spieler 2").trim() || "Spieler 2";
+    const n3 = (arr[2] || "Spieler 3").trim() || "Spieler 3";
+    state.names = [n1,n2,n3];
+    setStatus("Namen per Sprache gesetzt.");
+    setVoiceBox(`✅ <b>Namen gesetzt</b>: ${n1}, ${n2}, ${n3}`);
+    render();
+  }
+
+  function undo(source="manual"){
     if(state.rounds.length === 0){
       setStatus("Keine Runde zum Löschen.");
+      if(source==="voice") setVoiceBox("⚠️ Keine Runde zum Löschen.");
       return;
     }
     const last = state.rounds.pop();
     setStatus(`Letzte Runde gelöscht (${last.join(", ")}).`);
+    if(source==="voice") setVoiceBox(`🗑️ <b>Letzte Runde gelöscht</b>: ${last.join(", ")}`);
     render();
   }
 
-  function resetAll(){
-    if(!confirm("Wirklich alles zurücksetzen?")) return;
+  function resetAll(source="manual"){
+    if(source==="manual"){
+      if(!confirm("Wirklich alles zurücksetzen?")) return;
+    }
     state.names = ["Spieler 1","Spieler 2","Spieler 3"];
     state.rounds = [];
     setStatus("Zurückgesetzt.");
+    if(source==="voice") setVoiceBox("🧨 <b>Alles zurückgesetzt</b>.");
     render();
     clearScoreInputs();
   }
 
   // Wire up
-  $("addRound").addEventListener("click", addRound);
+  $("addRound").addEventListener("click", () => addRound(null,null,null,"manual"));
   $("saveNames").addEventListener("click", saveNames);
-  $("undo").addEventListener("click", undo);
-  $("reset").addEventListener("click", resetAll);
+  $("undo").addEventListener("click", () => undo("manual"));
+  $("reset").addEventListener("click", () => resetAll("manual"));
 
-  // Enter adds round (nice on phone)
+  // Enter adds round
   ["s1","s2","s3"].forEach(id=>{
     $(id).addEventListener("keydown", (e)=>{
-      if(e.key === "Enter") addRound();
+      if(e.key === "Enter") addRound(null,null,null,"manual");
     });
   });
 
+  // =========================
+  // Voice Recognition
+  // =========================
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  let rec = null;
+  let listening = false;
+
+  function normalizeText(t){
+    return (t || "")
+      .toLowerCase()
+      .replace(/[.,;:!?]/g, " ")
+      .replace(/\s+/g, " ")
+      .trim();
+  }
+
+  // simple german number words -> digits (0-30)
+  const NUM_WORDS = {
+    "null":0,"eins":1,"ein":1,"eine":1,"einen":1,"zwei":2,"drei":3,"vier":4,"fünf":5,"fuenf":5,"sechs":6,"sieben":7,"acht":8,"neun":9,
+    "zehn":10,"elf":11,"zwölf":12,"zwoelf":12,"dreizehn":13,"vierzehn":14,"fünfzehn":15,"fuenfzehn":15,"sechzehn":16,"siebzehn":17,
+    "achtzehn":18,"neunzehn":19,"zwanzig":20,"einundzwanzig":21,"zweiundzwanzig":22,"dreiundzwanzig":23,"vierundzwanzig":24,
+    "fünfundzwanzig":25,"fuenfundzwanzig":25,"sechsundzwanzig":26,"siebenundzwanzig":27,"achtundzwanzig":28,"neunundzwanzig":29,"dreißig":30,"dreissig":30
+  };
+
+  function extractNumbers(text){
+    const t = normalizeText(text);
+    const tokens = t.split(" ");
+    const nums = [];
+    for(const tok of tokens){
+      if(tok === "") continue;
+      if(/^-?\d+$/.test(tok)){
+        nums.push(parseInt(tok,10));
+        continue;
+      }
+      if(NUM_WORDS.hasOwnProperty(tok)){
+        nums.push(NUM_WORDS[tok]);
+        continue;
+      }
+    }
+    return nums;
+  }
+
+  function startVoice(){
+    if(!SR){
+      setStatus("Voice nicht verfügbar (Browser unterstützt SpeechRecognition nicht).");
+      setPill("bad","voice: nicht verfügbar");
+      setVoiceBox("❌ <b>Voice nicht verfügbar</b> – nutze Chrome/Edge (Desktop/Android).");
+      return;
+    }
+    if(listening) return;
+
+    rec = new SR();
+    rec.lang = "de-DE";
+    rec.continuous = true;
+    rec.interimResults = true;
+
+    rec.onstart = () => {
+      listening = true;
+      setPill("warn","voice: hört zu");
+      setVoiceBox("🎤 <b>Höre zu…</b> Sag z.B.: <span class='kbd'>runde 12 3 21</span>");
+    };
+
+    rec.onend = () => {
+      listening = false;
+      setPill("","bereit");
+      setVoiceBox("<span class='muted'>Voice gestoppt.</span>");
+    };
+
+    rec.onerror = (e) => {
+      listening = false;
+      setPill("bad","voice: error");
+      setVoiceBox("❌ <b>Voice Error</b>: " + (e.error || "unknown"));
+    };
+
+    rec.onresult = (event) => {
+      let interim = "";
+      let finalText = "";
+      for(let i = event.resultIndex; i < event.results.length; i++){
+        const res = event.results[i];
+        const txt = res[0]?.transcript || "";
+        if(res.isFinal) finalText += txt;
+        else interim += txt;
+      }
+
+      if(interim.trim()){
+        setVoiceBox(`🎧 <b>Höre…</b> <span class="muted">${interim.trim()}</span>`);
+      }
+
+      if(finalText.trim()){
+        handleVoice(finalText.trim());
+      }
+    };
+
+    try{
+      rec.start();
+      setStatus("Voice gestartet. Sag: „runde 12 3 21“.");
+    }catch(e){
+      setStatus("Voice konnte nicht gestartet werden.");
+      setPill("bad","voice: start failed");
+    }
+  }
+
+  function stopVoice(){
+    try{ rec && rec.stop(); }catch(e){}
+  }
+
+  function handleVoice(text){
+    const t = normalizeText(text);
+
+    // Stop commands
+    if(t === "stopp" || t === "stop" || t.includes("voice stop") || t.includes("aufnahme stop")){
+      setVoiceBox("⏹️ <b>Stop</b>");
+      stopVoice();
+      return;
+    }
+
+    // Undo
+    if(t === "undo" || t.includes("letzte runde") || t.includes("runde löschen") || t.includes("runde loeschen")){
+      undo("voice");
+      return;
+    }
+
+    // Reset
+    if(t === "reset" || t.includes("alles zurücksetzen") || t.includes("alles zuruecksetzen") || t.includes("zurücksetzen") || t.includes("zuruecksetzen")){
+      resetAll("voice");
+      return;
+    }
+
+    // Names: "namen anna ben chris"
+    if(t.startsWith("namen ")){
+      const rest = t.replace(/^namen\s+/,"").trim();
+      const parts = rest.split(" ").filter(Boolean);
+      if(parts.length >= 3){
+        saveNamesFromArray([parts[0],parts[1],parts[2]]);
+      } else {
+        setVoiceBox("⚠️ Bitte 3 Namen sagen: <span class='kbd'>namen anna ben chris</span>");
+      }
+      return;
+    }
+
+    // Round commands:
+    // 1) "runde 12 3 21"  -> take first 3 numbers
+    // 2) "runde spieler 1 12 spieler 2 3 spieler 3 21" -> also works via numbers extraction
+    if(t.startsWith("runde")){
+      const nums = extractNumbers(t);
+      if(nums.length >= 3){
+        const ok = addRound(nums[0], nums[1], nums[2], "voice");
+        if(!ok) setVoiceBox("⚠️ Konnte Runde nicht hinzufügen. Sag: <span class='kbd'>runde 12 3 21</span>");
+      } else {
+        setVoiceBox("⚠️ Ich brauche 3 Zahlen. Beispiel: <span class='kbd'>runde 12 3 21</span>");
+      }
+      return;
+    }
+
+    // Fallback: if user only says three numbers (e.g. "12 3 21")
+    const nums = extractNumbers(t);
+    if(nums.length === 3){
+      addRound(nums[0], nums[1], nums[2], "voice");
+      return;
+    }
+
+    setVoiceBox(`🤔 Unbekannter Befehl: <span class="muted">"${text}"</span><br><span class="muted">Sag z.B. „runde 12 3 21“, „undo“, „reset“, „namen anna ben chris“.</span>`);
+  }
+
+  $("voiceStart").addEventListener("click", startVoice);
+  $("voiceStop").addEventListener("click", stopVoice);
+
+  // Alt+R toggles voice
+  window.addEventListener("keydown", (e) => {
+    if(e.altKey && e.key.toLowerCase() === "r"){
+      e.preventDefault();
+      if(listening) stopVoice();
+      else startVoice();
+    }
+  });
+
+  // Boot
   load();
   render();
   clearScoreInputs();
+  setPill("", "bereit");
 </script>
 </body>
 </html>
